@@ -9,6 +9,7 @@ ENV HTTP_AUTH_USER="" HTTP_AUTH_PASSWORD=""
 # Install necessary packages
 RUN apk update && apk add --no-cache \
     gcc git apache2 apache2-utils highlight make openssl-dev zlib-dev gettext \
+    gettext-dev \
     && apk add --no-cache --virtual .build-deps \
     musl-dev linux-headers
 
