@@ -8,7 +8,7 @@ ENV HTTP_AUTH_USER="" HTTP_AUTH_PASSWORD=""
 
 # Install necessary packages
 RUN apk update && apk add --no-cache \
-    gcc git nginx highlight make openssl-dev zlib-dev \
+    gcc git httpd nginx highlight make openssl-dev zlib-dev \
     && apk add --no-cache --virtual .build-deps \
     musl-dev linux-headers
 
@@ -19,8 +19,11 @@ RUN git clone https://git.zx2c4.com/cgit && cd cgit \
     && cd .. && rm -rf cgit \
     && apk del .build-deps
 
-# Configure Nginx and CGit
-COPY config/nginx.conf /etc/nginx/nginx.conf
+# Copy SSL certificates (update the paths as needed)
+COPY certs /etc/httpd/certs
+
+# Configure Apache and CGit
+COPY config/httpd.conf /etc/httpd/conf/httpd.conf
 COPY config/cgit.conf /etc/cgitrc
 COPY scripts /opt
 
@@ -28,8 +31,8 @@ COPY scripts /opt
 ADD https://github.com/Yelp/dumb-init/releases/download/v1.2.5/dumb-init_1.2.5_x86_64 /usr/local/bin/dumb-init
 RUN chmod +x /usr/local/bin/dumb-init
 
-# Expose port 80
-EXPOSE 80
+# Expose port 443 for HTTPS
+EXPOSE 443
 
-# Start Nginx and CGit
-CMD ["/usr/local/bin/dumb-init", "nginx", "-g", "daemon off;"]
+# Start Apache HTTP Server
+CMD ["/usr/local/bin/dumb-init", "httpd", "-D", "FOREGROUND"]
