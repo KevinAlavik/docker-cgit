@@ -8,19 +8,19 @@ ENV HTTP_AUTH_USER="" HTTP_AUTH_PASSWORD=""
 
 # Install necessary packages
 RUN apk update && apk add --no-cache \
-    gcc git nginx highlight make openssl-dev \
+    gcc git nginx highlight make openssl-dev zlib-dev \
     && apk add --no-cache --virtual .build-deps \
     musl-dev linux-headers
 
 # Install cgit
 RUN git clone https://git.zx2c4.com/cgit && cd cgit \
     && git submodule init && git submodule update \
-    && make NO_LUA=1 && make install \
+    && make NO_LUA=1 NO_REGEX=NeedsStartEnd && make install \
     && cd .. && rm -rf cgit \
     && apk del .build-deps
-    
+
 # Configure Nginx and CGit
-COPY config/httpd.conf /etc/nginx/nginx.conf
+COPY config/nginx.conf /etc/nginx/nginx.conf
 COPY config/cgit.conf /etc/cgitrc
 COPY scripts /opt
 
